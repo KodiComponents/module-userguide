@@ -1,0 +1,24 @@
+{
+    "name":        "kodicms/userguide",
+    "type":        "kodicms-module",
+    "description": "The official KodiCMS Userguide module",
+    "homepage":    "http://www.kodicms.ru/",
+    "license":     "MIT",
+    "keywords":    ["laravel", "framework", "kodicms", "cms", "module", "userguide"],
+    "authors": [
+        {
+            "name":     "Pavel Buchnev",
+            "email":    "butschster@gmail.com",
+            "homepage": "http://www.kodicms.ru/",
+            "role":     "developer"
+        }
+    ],
+    "support": {
+        "issues":   "https://github.com/KodiComponents/module-userguide/issues",
+        "forum":    "http://www.kodicms.ru/forum",
+        "source":   "https://github.com/KodiComponents/module-userguide"
+    },
+    "require": {
+        "kodicms/core": "dev-master"
+    }
+}
