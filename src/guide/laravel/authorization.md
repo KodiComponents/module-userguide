@@ -18,8 +18,6 @@
 
 In addition to providing [authentication](/docs/{{version}}/authentication) services out of the box, Laravel also provides a simple way to organize authorization logic and control access to resources. There are a variety of methods and helpers to assist you in organizing your authorization logic, and we'll cover each of them in this document.
 
-> **Note:** Authorization was added in Laravel 5.1.11, please refer to the [upgrade guide](/docs/{{version}}/upgrade) before integrating these features into your application.
-
 <a name="defining-abilities"></a>
 ## Defining Abilities
 
@@ -42,7 +40,7 @@ The simplest way to determine if a user may perform a given action is to define 
 	     */
 	    public function boot(GateContract $gate)
 	    {
-	        parent::registerPolicies($gate);
+	        $this->registerPolicies($gate);
 
 	        $gate->define('update-post', function ($user, $post) {
 	        	return $user->id === $post->user_id;
@@ -59,7 +57,8 @@ In addition to registering `Closures` as authorization callbacks, you may regist
     $gate->define('update-post', 'Class@method');
 
 <a name="intercepting-all-checks"></a>
-#### Intercepting All Checks
+<a name="intercepting-authorization-checks"></a>
+#### Intercepting Authorization Checks
 
 Sometimes, you may wish to grant all abilities to a specific user. For this situation, use the `before` method to define a callback that is run before all other authorization checks:
 
@@ -70,6 +69,12 @@ Sometimes, you may wish to grant all abilities to a specific user. For this situ
     });
 
 If the `before` callback returns a non-null result that result will be considered the result of the check.
+
+You may use the `after` method to define a callback to be executed after every authorization check. However, you may not modify the result of the authorization check from an `after` callback:
+
+    $gate->after(function ($user, $ability, $result, $arguments) {
+        //
+    });
 
 <a name="checking-abilities"></a>
 ## Checking Abilities
@@ -194,7 +199,7 @@ You may also combine the `@can` directive with `@else` directive:
 <a name="within-form-requests"></a>
 ### Within Form Requests
 
-You may also choose to utilize your `Gate` defined abilities from a [form request's](/docs/{{version}}/validation#form-request-validation) `authorize` method. For example, you may simply defer to the `Gate` within the form request's `authorize` method:
+You may also choose to utilize your `Gate` defined abilities from a [form request's](/docs/{{version}}/validation#form-request-validation) `authorize` method. For example:
 
     /**
      * Determine if the user is authorized to make this request.
@@ -251,7 +256,7 @@ Once the policy exists, we need to register it with the `Gate` class. The `AuthS
 	     */
 	    public function boot(GateContract $gate)
 	    {
-	        parent::registerPolicies($gate);
+	        $this->registerPolicies($gate);
 	    }
 	}
 

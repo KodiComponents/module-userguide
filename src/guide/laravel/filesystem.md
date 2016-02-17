@@ -35,6 +35,38 @@ Before using the S3 or Rackspace drivers, you will need to install the appropria
 - Amazon S3: `league/flysystem-aws-s3-v3 ~1.0`
 - Rackspace: `league/flysystem-rackspace ~1.0`
 
+#### FTP Driver Configuration
+
+Laravel's Flysystem integrations works great with FTP; however, a sample configuration is not included with the framework's default `filesystems.php` configuration file. If you need to configure a FTP filesystem, you may use the example configuration below:
+
+    'ftp' => [
+        'driver'   => 'ftp',
+        'host'     => 'ftp.example.com',
+        'username' => 'your-username',
+        'password' => 'your-password',
+
+        // Optional FTP Settings...
+        // 'port'     => 21,
+        // 'root'     => '',
+        // 'passive'  => true,
+        // 'ssl'      => true,
+        // 'timeout'  => 30,
+    ],
+
+#### Rackspace Driver Configuration
+
+Laravel's Flysystem integrations works great with Rackspace; however, a sample configuration is not included with the framework's default `filesystems.php` configuration file. If you need to configure a Rackspace filesystem, you may use the example configuration below:
+
+    'rackspace' => [
+        'driver'    => 'rackspace',
+        'username'  => 'your-username',
+        'key'       => 'your-key',
+        'container' => 'your-container',
+        'endpoint'  => 'https://identity.api.rackspacecloud.com/v2.0/',
+        'region'    => 'IAD',
+        'url_type'  => 'publicURL',
+    ],
+
 <a name="basic-usage"></a>
 ## Basic Usage
 
@@ -111,7 +143,7 @@ The `copy` method may be used to copy an existing file to a new location on the 
 
     Storage::copy('old/file1.jpg', 'new/file1.jpg');
 
-The `move` method may be used to move an existing file to a new location:
+The `move` method may be used to rename or move an existing file to a new location:
 
     Storage::move('old/file1.jpg', 'new/file1.jpg');
 

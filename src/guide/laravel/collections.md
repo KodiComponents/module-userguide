@@ -55,6 +55,8 @@ You may select any method from this table to see an example of its usage:
 [count](#method-count)
 [diff](#method-diff)
 [each](#method-each)
+[every](#method-every)
+[except](#method-except)
 [filter](#method-filter)
 [first](#method-first)
 [flatten](#method-flatten)
@@ -71,7 +73,10 @@ You may select any method from this table to see an example of its usage:
 [keys](#method-keys)
 [last](#method-last)
 [map](#method-map)
+[max](#method-max)
 [merge](#method-merge)
+[min](#method-min)
+[only](#method-only)
 [pluck](#method-pluck)
 [pop](#method-pop)
 [prepend](#method-prepend)
@@ -99,6 +104,8 @@ You may select any method from this table to see an example of its usage:
 [values](#method-values)
 [where](#method-where)
 [whereLoose](#method-whereloose)
+[whereIn](#method-wherein)
+[whereInLoose](#method-whereinloose)
 [zip](#method-zip)
 </div>
 
@@ -274,6 +281,21 @@ You may optionally pass offset as the second argument:
 
     // ['b', 'f']
 
+<a name="method-except"></a>
+#### `except()` {#collection-method}
+
+The `except` method returns all items in the collection except for those with the specified keys:
+
+    $collection = collect(['product_id' => 1, 'name' => 'Desk', 'price' => 100, 'discount' => false]);
+
+    $filtered = $collection->except(['price', 'discount']);
+
+    $filtered->all();
+
+    // ['product_id' => 1, 'name' => 'Desk']
+
+For the inverse of `except`, see the [only](#method-only) method.
+
 <a name="method-filter"></a>
 #### `filter()` {#collection-method}
 
@@ -281,8 +303,8 @@ The `filter` method filters the collection by a given callback, keeping only tho
 
     $collection = collect([1, 2, 3, 4]);
 
-    $filtered = $collection->filter(function ($item) {
-        return $item > 2;
+    $filtered = $collection->filter(function ($value, $key) {
+        return $value > 2;
     });
 
     $filtered->all();
@@ -354,9 +376,11 @@ The `forget` method removes an item from the collection by its key:
 
 The `forPage` method returns a new collection containing the items that would be present on a given page number:
 
-    $collection = collect([1, 2, 3, 4, 5, 6, 7, 8, 9])->forPage(2, 3);
+    $collection = collect([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-    $collection->all();
+    $chunk = $collection->forPage(2, 3);
+
+    $chunk->all();
 
     // [4, 5, 6]
 
@@ -582,6 +606,19 @@ The `map` method iterates through the collection and passes each value to the gi
 
 > **Note:** Like most other collection methods, `map` returns a new collection instance; it does not modify the collection it is called on. If you want to transform the original collection, use the [`transform`](#method-transform) method.
 
+<a name="method-max"></a>
+#### `max()` {#collection-method}
+
+The `max` method return the maximum value of a given key:
+
+    $max = collect([['foo' => 10], ['foo' => 20]])->max('foo');
+
+    // 20
+
+    $max = collect([1, 2, 3, 4, 5])->max();
+
+    // 5
+
 <a name="method-merge"></a>
 #### `merge()` {#collection-method}
 
@@ -604,6 +641,34 @@ If the given array's keys are numeric, the values will be appended to the end of
     $merged->all();
 
     // ['Desk', 'Chair', 'Bookcase', 'Door']
+
+<a name="method-min"></a>
+#### `min()` {#collection-method}
+
+The `min` method return the minimum value of a given key:
+
+    $min = collect([['foo' => 10], ['foo' => 20]])->min('foo');
+
+    // 10
+
+    $min = collect([1, 2, 3, 4, 5])->min();
+
+    // 1
+
+<a name="method-only"></a>
+#### `only()` {#collection-method}
+
+The `only` method returns the items in the collection with the specified keys:
+
+    $collection = collect(['product_id' => 1, 'name' => 'Desk', 'price' => 100, 'discount' => false]);
+
+    $filtered = $collection->only(['product_id', 'name']);
+
+    $filtered->all();
+
+    // ['product_id' => 1, 'name' => 'Desk']
+
+For the inverse of `only`, see the [except](#method-except) method.
 
 <a name="method-pluck"></a>
 #### `pluck()` {#collection-method}
@@ -656,6 +721,16 @@ The `prepend` method adds an item to the beginning of the collection:
     $collection->all();
 
     // [0, 1, 2, 3, 4, 5]
+
+You can optionally pass a second argument to set the key of the prepended item:
+
+    $collection = collect(['one' => 1, 'two', => 2]);
+
+    $collection->prepend(0, 'zero');
+
+    $collection->all();
+
+    // ['zero' => 0, 'one' => 1, 'two', => 2]
 
 <a name="method-pull"></a>
 #### `pull()` {#collection-method}
@@ -745,8 +820,8 @@ The `reject` method filters the collection using the given callback. The callbac
 
     $collection = collect([1, 2, 3, 4]);
 
-    $filtered = $collection->reject(function ($item) {
-        return $item > 2;
+    $filtered = $collection->reject(function ($value, $key) {
+        return $value > 2;
     });
 
     $filtered->all();
@@ -1158,12 +1233,42 @@ The `where` method filters the collection by a given key / value pair:
     ]
     */
 
-The `where` method uses strict comparisons when checking item values. Use the [`whereLoose`](#where-loose) method to filter using "loose" comparisons.
+The `where` method uses strict comparisons when checking item values. Use the [`whereLoose`](#method-whereloose) method to filter using "loose" comparisons.
 
 <a name="method-whereloose"></a>
 #### `whereLoose()` {#collection-method}
 
 This method has the same signature as the [`where`](#method-where) method; however, all values are compared using "loose" comparisons.
+
+<a name="method-wherein"></a>
+#### `whereIn()` {#collection-method}
+
+The `whereIn` method filters the collection by a given key / value contained within the given array.
+
+    $collection = collect([
+        ['product' => 'Desk', 'price' => 200],
+        ['product' => 'Chair', 'price' => 100],
+        ['product' => 'Bookcase', 'price' => 150],
+        ['product' => 'Door', 'price' => 100],
+    ]);
+
+    $filtered = $collection->whereIn('price', [150, 200]);
+
+    $filtered->all();
+
+    /*
+    [
+        ['product' => 'Bookcase', 'price' => 150],
+        ['product' => 'Desk', 'price' => 200],
+    ]
+    */
+
+The `whereIn` method uses strict comparisons when checking item values. Use the [`whereInLoose`](#method-whereinloose) method to filter using "loose" comparisons.
+
+<a name="method-whereinloose"></a>
+#### `whereInLoose()` {#collection-method}
+
+This method has the same signature as the [`whereIn`](#method-wherein) method; however, all values are compared using "loose" comparisons.
 
 <a name="method-zip"></a>
 #### `zip()` {#collection-method}

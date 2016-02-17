@@ -18,7 +18,6 @@ To obtain an instance of the current HTTP request via dependency injection, you 
     namespace App\Http\Controllers;
 
     use Illuminate\Http\Request;
-    use Illuminate\Routing\Controller;
 
     class UserController extends Controller
     {
@@ -47,7 +46,6 @@ You may still type-hint the `Illuminate\Http\Request` and access your route para
     namespace App\Http\Controllers;
 
     use Illuminate\Http\Request;
-    use Illuminate\Routing\Controller;
 
     class UserController extends Controller
     {
@@ -55,7 +53,7 @@ You may still type-hint the `Illuminate\Http\Request` and access your route para
          * Update the specified user.
          *
          * @param  Request  $request
-         * @param  int  $id
+         * @param  string  $id
          * @return Response
          */
         public function update(Request $request, $id)
@@ -67,7 +65,7 @@ You may still type-hint the `Illuminate\Http\Request` and access your route para
 <a name="basic-request-information"></a>
 ### Basic Request Information
 
-The `Illuminate\Http\Request` instance provides a variety of methods for examining the HTTP request for your application. The Laravel `Illuminate\Http\Request` extends the `Symfony\Component\HttpFoundation\Request` class. Here are a few more of the useful methods available on this class:
+The `Illuminate\Http\Request` instance provides a variety of methods for examining the HTTP request for your application and extends the `Symfony\Component\HttpFoundation\Request` class. Here are a few more of the useful methods available on this class:
 
 #### Retrieving The Request URI
 
@@ -81,9 +79,13 @@ The `is` method allows you to verify that the incoming request URI matches a giv
         //
     }
 
-To get the full URL, not just the path info, you may use the `url` method on the request instance:
+To get the full URL, not just the path info, you may use the `url` or `fullUrl` methods on the request instance:
 
+    // Without Query String...
     $url = $request->url();
+
+    // With Query String...
+    $url = $request->fullUrl();
 
 #### Retrieving The Request Method
 
@@ -119,7 +121,7 @@ If you return a PSR-7 response instance from a route or controller, it will auto
 
 #### Retrieving An Input Value
 
-Using a few simple methods, you may access all user input from your `Illuminate\Http\Request` instance. You do not need to worry about the HTTP verb used for the request, as input is accessed in the same way for all verbs.
+Using a few simple methods, you may access all user input from your `Illuminate\Http\Request` instance. You do not need to worry about the HTTP verb used for the request, as input is accessed in the same way for all verbs:
 
     $name = $request->input('name');
 
@@ -129,7 +131,15 @@ You may pass a default value as the second argument to the `input` method. This 
 
 When working on forms with array inputs, you may use "dot" notation to access the arrays:
 
-    $input = $request->input('products.0.name');
+    $name = $request->input('products.0.name');
+
+    $names = $request->input('products.*.name');
+
+#### Retrieving JSON Input Values
+
+When sending JSON requests to your application, you may access the JSON data via the `input` method as long as the `Content-Type` header of the request is properly set to `application/json`. You may even use "dot" syntax to dig deeper into JSON arrays:
+
+    $name = $request->input('user.name');
 
 #### Determining If An Input Value Is Present
 
@@ -157,6 +167,14 @@ If you need to retrieve a sub-set of the input data, you may use the `only` and 
 
     $input = $request->except('credit_card');
 
+#### Dynamic Properties
+
+You may also access user input using dynamic properties on the `Illuminate\Http\Request` instance. For example, if one of your application's forms contains a `name` field, you may access the value of the posted field like so:
+
+    $name = $request->name;
+
+When using dynamic properties, Laravel will first look for the parameter's value in the request payload and then in the route parameters.
+
 <a name="old-input"></a>
 ### Old Input
 
@@ -170,7 +188,7 @@ The `flash` method on the `Illuminate\Http\Request` instance will flash the curr
 
 You may also use the `flashOnly` and `flashExcept` methods to flash a sub-set of the request data into the session:
 
-    $request->flashOnly('username', 'email');
+    $request->flashOnly(['username', 'email']);
 
     $request->flashExcept('password');
 
@@ -188,9 +206,9 @@ To retrieve flashed input from the previous request, use the `old` method on the
 
     $username = $request->old('username');
 
-Laravel also provides a global `old` helper function. If you are displaying old input within a [Blade template](/docs/{{version}}/blade), it is more convenient to use the `old` helper:
+Laravel also provides a global `old` helper function. If you are displaying old input within a [Blade template](/docs/{{version}}/blade), it is more convenient to use the `old` helper. If no old input exists for the given string, `null` will be returned:
 
-    {{ old('username') }}
+    <input type="text" name="username" value="{{ old('username') }}">
 
 <a name="cookies"></a>
 ### Cookies
@@ -207,7 +225,7 @@ Laravel provides a global `cookie` helper function which serves as a simple fact
 
     $response = new Illuminate\Http\Response('Hello World');
 
-    $response->withCookie(cookie('name', 'value', $minutes));
+    $response->withCookie('name', 'value', $minutes);
 
     return $response;
 
@@ -224,9 +242,7 @@ You may access uploaded files that are included with the `Illuminate\Http\Reques
 
     $file = $request->file('photo');
 
-#### Verifying File Presence
-
-You may also determine if a file is present on the request using the `hasFile` method:
+You may determine if a file is present on the request using the `hasFile` method:
 
     if ($request->hasFile('photo')) {
         //
@@ -236,8 +252,7 @@ You may also determine if a file is present on the request using the `hasFile` m
 
 In addition to checking if the file is present, you may verify that there were no problems uploading the file via the `isValid` method:
 
-    if ($request->file('photo')->isValid())
-    {
+    if ($request->file('photo')->isValid()) {
         //
     }
 
@@ -251,4 +266,4 @@ To move the uploaded file to a new location, you should use the `move` method. T
 
 #### Other File Methods
 
-There are a variety of other methods available on `UploadedFile` instances. Check out the [API documentation for the class](http://api.symfony.com/2.7/Symfony/Component/HttpFoundation/File/UploadedFile.html) for more information regarding these methods.
+There are a variety of other methods available on `UploadedFile` instances. Check out the [API documentation for the class](http://api.symfony.com/3.0/Symfony/Component/HttpFoundation/File/UploadedFile.html) for more information regarding these methods.

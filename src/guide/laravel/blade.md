@@ -6,6 +6,7 @@
     - [Extending A Layout](#extending-a-layout)
 - [Displaying Data](#displaying-data)
 - [Control Structures](#control-structures)
+- [Stacks](#stacks)
 - [Service Injection](#service-injection)
 - [Extending Blade](#extending-blade)
 
@@ -93,7 +94,7 @@ Of course, you are not limited to displaying the contents of the variables passe
 
 #### Blade & JavaScript Frameworks
 
-Since many JavaScript frameworks also use "curly" braces to indicate a given expression  should be displayed in the browser, you may use the `@` symbol to inform the Blade rendering engine an expression should remain untouched. For example:
+Since many JavaScript frameworks also use "curly" braces to indicate a given expression should be displayed in the browser, you may use the `@` symbol to inform the Blade rendering engine an expression should remain untouched. For example:
 
     <h1>Laravel</h1>
 
@@ -182,6 +183,8 @@ Even though the included view will inherit all data available in the parent view
 
     @include('view.name', ['some' => 'data'])
 
+> **Note:** You should avoid using the `__DIR__` and `__FILE__` constants in your Blade views, since they will refer to the location of the cached view.
+
 #### Rendering Views For Collections
 
 You may combine loops and includes into one line with Blade's `@each` directive:
@@ -199,6 +202,23 @@ You may also pass a fourth argument to the `@each` directive. This argument dete
 Blade also allows you to define comments in your views. However, unlike HTML comments, Blade comments are not included in the HTML returned by your application:
 
     {{-- This comment will not be present in the rendered HTML --}}
+
+<a name="stacks"></a>
+## Stacks
+
+Blade also allows you to push to named stacks which can be rendered somewhere else in another view or layout:
+
+    @push('scripts')
+        <script src="/example.js"></script>
+    @endpush
+
+You may push to the same stack as many times as needed. To render a stack, use the `@stack` syntax:
+
+    <head>
+        <!-- Head Contents -->
+
+        @stack('scripts')
+    </head>
 
 <a name="service-injection"></a>
 ## Service Injection

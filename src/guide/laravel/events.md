@@ -10,6 +10,7 @@
     - [Configuration](#broadcast-configuration)
     - [Marking Events For Broadcast](#marking-events-for-broadcast)
     - [Broadcast Data](#broadcast-data)
+    - [Event Broadcasting Customizations](#event-broadcasting-customizations)
     - [Consuming Event Broadcasts](#consuming-event-broadcasts)
 - [Event Subscribers](#event-subscribers)
 
@@ -39,6 +40,33 @@ The `EventServiceProvider` included with your Laravel application provides a con
 Of course, manually creating the files for each event and listener is cumbersome. Instead, simply add listeners and events to your `EventServiceProvider` and use the `event:generate` command. This command will generate any events or listeners that are listed in your `EventServiceProvider`. Of course, events and listeners that already exist will be left untouched:
 
     php artisan event:generate
+
+### Registering Events Manually
+
+Typically, events should be registered via the `EventServiceProvider` `$listen` array; however, you may also register events manually with the event dispatcher using either the `Event` facade or the `Illuminate\Contracts\Events\Dispatcher` contract implementation:
+
+    /**
+     * Register any other events for your application.
+     *
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+     * @return void
+     */
+    public function boot(DispatcherContract $events)
+    {
+        parent::boot($events);
+
+        $events->listen('event.name', function ($foo, $bar) {
+            //
+        });
+    }
+
+#### Wildcard Event Listeners
+
+You may even register listeners using the `*` as a wildcard, allowing you to catch multiple events on the same listener. Wildcard listeners receive the entire event data array as a single argument:
+
+    $events->listen('event.*', function (array $data) {
+        //
+    });
 
 <a name="defining-events"></a>
 ## Defining Events
@@ -71,7 +99,7 @@ An event class is simply a data container which holds the information related to
         }
     }
 
-As you can see, this event class contains no special logic. It is simply a container for the `Podcast` object that was purchased. The `SerializesModels` trait used by the event will gracefully serialize any Eloquent models if the event object is serialized using PHP's `serialize` function.
+As you can see, this event class contains no logic. It is simply a container for the `Podcast` object that was purchased. The `SerializesModels` trait used by the event will gracefully serialize any Eloquent models if the event object is serialized using PHP's `serialize` function.
 
 <a name="defining-listeners"></a>
 ## Defining Listeners
@@ -295,6 +323,37 @@ However, if you wish to have even more fine-grained control over your broadcast 
         return ['user' => $this->user->id];
     }
 
+<a name="event-broadcasting-customizations"></a>
+### Event Broadcasting Customizations
+
+#### Customizing The Event Name
+
+By default, the broadcast event name will be the fully qualified class name of the event. So, if the event's class name is `App\Events\ServerCreated`, the broadcast event would be `App\Events\ServerCreated`. You can customize this broadcast event name using by defining a `broadcastAs` method on your event class:
+
+    /**
+     * Get the broadcast event name.
+     *
+     * @return string
+     */
+    public function broadcastAs()
+    {
+        return 'app.server-created';
+    }
+
+#### Customizing The Queue
+
+By default, each event to be broadcast is placed on the default queue for the default queue connection in your `queue.php` configuration file. You may customize the queue used by the event broadcaster by adding an `onQueue` method to your event class. This method should return the name of the queue you wish to use:
+
+     /**
+     * Set the name of the queue the event should be placed on.
+     *
+     * @return string
+     */
+    public function onQueue()
+    {
+        return 'your-queue-name';
+    }
+
 <a name="consuming-event-broadcasts"></a>
 ### Consuming Event Broadcasts
 
@@ -369,7 +428,6 @@ Event subscribers are classes that may subscribe to multiple events from within 
          * Register the listeners for the subscriber.
          *
          * @param  Illuminate\Events\Dispatcher  $events
-         * @return array
          */
         public function subscribe($events)
         {

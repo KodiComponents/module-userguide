@@ -5,7 +5,11 @@
     - [API Documentation](/api/{{version}})
 - Setup
     - [Installation](/docs/{{version}}/installation)
+    - [Configuration](/docs/{{version}}/configuration)
     - [Homestead](/docs/{{version}}/homestead)
+- Tutorials
+    - [Beginner Task List](/docs/{{version}}/quickstart)
+    - [Intermediate Task List](/docs/{{version}}/quickstart-intermediate)
 - The Basics
     - [Routing](/docs/{{version}}/routing)
     - [Middleware](/docs/{{version}}/middleware)
@@ -19,7 +23,6 @@
     - [Application Structure](/docs/{{version}}/structure)
     - [Service Providers](/docs/{{version}}/providers)
     - [Service Container](/docs/{{version}}/container)
-    - [Contracts](/docs/{{version}}/contracts)
     - [Facades](/docs/{{version}}/facades)
 - Services
     - [Authentication](/docs/{{version}}/authentication)

@@ -51,9 +51,8 @@ Note that we are able to inject any dependencies we need into the command's cons
     use App\User;
     use App\DripEmailer;
     use Illuminate\Console\Command;
-    use Illuminate\Foundation\Inspiring;
 
-    class Inspire extends Command
+    class SendEmails extends Command
     {
         /**
          * The name and signature of the console command.
@@ -155,6 +154,16 @@ You may also assign default values to options:
 
     email:send {user} {--queue=default}
 
+To assign a shortcut when defining an option, you may specify it before the option name and use a | delimiter to separate the shortcut from the full option name:
+
+    email:send {user} {--Q|queue}
+
+If you would like to define arguments or options to expect array inputs, you may use the `*` character:
+
+    email:send {user*}
+
+    email:send {user} {--id=*}
+
 #### Input Descriptions
 
 You may assign descriptions to input arguments and options by separating the parameter from the description using a colon:
@@ -172,8 +181,6 @@ You may assign descriptions to input arguments and options by separating the par
 ### Retrieving Input
 
 While your command is executing, you will obviously need to access the values for the arguments and options accepted by your command. To do so, you may use the `argument` and `option` methods:
-
-To retrieve the value of an argument, use the `argument` method:
 
     /**
      * Execute the console command.
@@ -230,18 +237,18 @@ If you need to ask the user for a simple confirmation, you may use the `confirm`
 
 #### Giving The User A Choice
 
-The `anticipate` method can be used to provided autocompletion for possible choices. The user can still choose any answer, regardless of the choices.
+The `anticipate` method can be used to provide autocompletion for possible choices. The user can still choose any answer, regardless of the auto-completion hints:
 
     $name = $this->anticipate('What is your name?', ['Taylor', 'Dayle']);
 
 If you need to give the user a predefined set of choices, you may use the `choice` method. The user chooses the index of the answer, but the value of the answer will be returned to you. You may set the default value to be returned if nothing is chosen:
 
-    $name = $this->choice('What is your name?', ['Taylor', 'Dayle'], false);
+    $name = $this->choice('What is your name?', ['Taylor', 'Dayle'], $default);
 
 <a name="writing-output"></a>
 ### Writing Output
 
-To send output to the console, use the `info`, `comment`, `question` and `error` methods. Each of these methods will use the appropriate ANSI colors for their purpose.
+To send output to the console, use the `line`, `info`, `comment`, `question` and `error` methods. Each of these methods will use the appropriate ANSI colors for their purpose.
 
 To display an information message to the user, use the `info` method. Typically, this will display in the console as green text:
 
@@ -258,6 +265,10 @@ To display an information message to the user, use the `info` method. Typically,
 To display an error message, use the `error` method. Error message text is typically displayed in red:
 
     $this->error('Something went wrong!');
+
+If you want to display plain console output, use the `line` method. The `line` method does not receive any unique coloration:
+
+    $this->line('Display this on the screen');
 
 #### Table Layouts
 
@@ -295,7 +306,7 @@ Once your command is finished, you need to register it with Artisan so it will b
 Within this file, you will find a list of commands in the `commands` property. To register your command, simply add the class name to the list. When Artisan boots, all the commands listed in this property will be resolved by the [service container](/docs/{{version}}/container) and registered with Artisan:
 
     protected $commands = [
-        'App\Console\Commands\SendEmails'
+        Commands\SendEmails::class
     ];
 
 <a name="calling-commands-via-code"></a>

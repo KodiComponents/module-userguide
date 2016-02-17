@@ -26,6 +26,7 @@ Laravel includes a variety of "helper" PHP functions. Many of these functions ar
 
 <div class="collection-method-list" markdown="1">
 [array_add](#method-array-add)
+[array_collapse](#method-array-collapse)
 [array_divide](#method-array-divide)
 [array_dot](#method-array-dot)
 [array_except](#method-array-except)
@@ -33,12 +34,13 @@ Laravel includes a variety of "helper" PHP functions. Many of these functions ar
 [array_flatten](#method-array-flatten)
 [array_forget](#method-array-forget)
 [array_get](#method-array-get)
+[array_has](#method-array-has)
 [array_only](#method-array-only)
 [array_pluck](#method-array-pluck)
 [array_pull](#method-array-pull)
 [array_set](#method-array-set)
 [array_sort](#method-array-sort)
-[array_sort_recursive](#method-array-recursive)
+[array_sort_recursive](#method-array-sort-recursive)
 [array_where](#method-array-where)
 [head](#method-head)
 [last](#method-last)
@@ -94,10 +96,12 @@ Laravel includes a variety of "helper" PHP functions. Many of these functions ar
 [auth](#method-auth)
 [back](#method-back)
 [bcrypt](#method-bcrypt)
+[collect](#method-collect)
 [config](#method-config)
 [csrf_field](#method-csrf-field)
 [csrf_token](#method-csrf-token)
 [dd](#method-dd)
+[dispatch](#method-dispatch)
 [env](#method-env)
 [event](#method-event)
 [factory](#method-factory)
@@ -106,6 +110,7 @@ Laravel includes a variety of "helper" PHP functions. Many of these functions ar
 [redirect](#method-redirect)
 [request](#method-request)
 [response](#method-response)
+[session](#method-session)
 [value](#method-value)
 [view](#method-view)
 [with](#method-with)
@@ -136,6 +141,15 @@ The `array_add` function adds a given key / value pair to the array if the given
 
     // ['name' => 'Desk', 'price' => 100]
 
+<a name="method-array-collapse"></a>
+#### `array_collapse()` {#collection-method}
+
+The `array_collapse` function collapse an array of arrays into a single array:
+
+    $array = array_collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+
+    // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
 <a name="method-array-divide"></a>
 #### `array_divide()` {#collection-method}
 
@@ -159,7 +173,7 @@ The `array_dot` function flattens a multi-dimensional array into a single level 
 <a name="method-array-except"></a>
 #### `array_except()` {#collection-method}
 
-The `array_except` method removes the given key / value pairs from the array:
+The `array_except` function removes the given key / value pairs from the array:
 
     $array = ['name' => 'Desk', 'price' => 100];
 
@@ -170,7 +184,7 @@ The `array_except` method removes the given key / value pairs from the array:
 <a name="method-array-first"></a>
 #### `array_first()` {#collection-method}
 
-The `array_first` method returns the first element of an array passing a given truth test:
+The `array_first` function returns the first element of an array passing a given truth test:
 
     $array = [100, 200, 300];
 
@@ -187,7 +201,7 @@ A default value may also be passed as the third parameter to the method. This va
 <a name="method-array-flatten"></a>
 #### `array_flatten()` {#collection-method}
 
-The `array_flatten` method will flatten a multi-dimensional array into a single level.
+The `array_flatten` function will flatten a multi-dimensional array into a single level.
 
     $array = ['name' => 'Joe', 'languages' => ['PHP', 'Ruby']];
 
@@ -198,7 +212,7 @@ The `array_flatten` method will flatten a multi-dimensional array into a single 
 <a name="method-array-forget"></a>
 #### `array_forget()` {#collection-method}
 
-The `array_forget` method removes a given key / value pair from a deeply nested array using "dot" notation:
+The `array_forget` function removes a given key / value pair from a deeply nested array using "dot" notation:
 
     $array = ['products' => ['desk' => ['price' => 100]]];
 
@@ -209,7 +223,7 @@ The `array_forget` method removes a given key / value pair from a deeply nested 
 <a name="method-array-get"></a>
 #### `array_get()` {#collection-method}
 
-The `array_get` method retrieves a value from a deeply nested array using "dot" notation:
+The `array_get` function retrieves a value from a deeply nested array using "dot" notation:
 
     $array = ['products' => ['desk' => ['price' => 100]]];
 
@@ -221,10 +235,21 @@ The `array_get` function also accepts a default value, which will be returned if
 
     $value = array_get($array, 'names.john', 'default');
 
+<a name="method-array-has"></a>
+#### `array_has()` {#collection-method}
+
+The `array_has` function checks that a given item exists in an array using "dot" notation:
+
+    $array = ['products' => ['desk' => ['price' => 100]]];
+
+    $hasDesk = array_has($array, 'products.desk');
+
+    // true
+
 <a name="method-array-only"></a>
 #### `array_only()` {#collection-method}
 
-The `array_only` method will return only the specified key / value pairs from the given array:
+The `array_only` function will return only the specified key / value pairs from the given array:
 
     $array = ['name' => 'Desk', 'price' => 100, 'orders' => 10];
 
@@ -235,21 +260,38 @@ The `array_only` method will return only the specified key / value pairs from th
 <a name="method-array-pluck"></a>
 #### `array_pluck()` {#collection-method}
 
-The `array_pluck` method will pluck a list of the given key / value pairs from the array:
+The `array_pluck` function will pluck a list of the given key / value pairs from the array:
 
     $array = [
-        ['developer' => ['name' => 'Taylor']],
-        ['developer' => ['name' => 'Abigail']]
+        ['developer' => ['id' => 1, 'name' => 'Taylor']],
+        ['developer' => ['id' => 2, 'name' => 'Abigail']],
     ];
 
     $array = array_pluck($array, 'developer.name');
 
     // ['Taylor', 'Abigail'];
 
+You may also specify how you wish the resulting list to be keyed:
+
+    $array = array_pluck($array, 'developer.name', 'developer.id');
+
+    // [1 => 'Taylor', 2 => 'Abigail'];
+
+<a name="method-array-prepend"></a>
+#### `array_prepend()` {#collection-method}
+
+The `array_prepend` function will push an item onto the beginning of an array:
+
+    $array = ['one', 'two', 'three', 'four'];
+
+    $array = array_prepend($array, 'zero');
+
+    // $array: ['zero', 'one', 'two', 'three', 'four']
+
 <a name="method-array-pull"></a>
 #### `array_pull()` {#collection-method}
 
-The `array_pull` method returns and removes a key / value pair from the array:
+The `array_pull` function returns and removes a key / value pair from the array:
 
     $array = ['name' => 'Desk', 'price' => 100];
 
@@ -262,7 +304,7 @@ The `array_pull` method returns and removes a key / value pair from the array:
 <a name="method-array-set"></a>
 #### `array_set()` {#collection-method}
 
-The `array_set` method sets a value within a deeply nested array using "dot" notation:
+The `array_set` function sets a value within a deeply nested array using "dot" notation:
 
     $array = ['products' => ['desk' => ['price' => 100]]];
 
@@ -273,7 +315,7 @@ The `array_set` method sets a value within a deeply nested array using "dot" not
 <a name="method-array-sort"></a>
 #### `array_sort()` {#collection-method}
 
-The `array_sort` method sorts the array by the results of the given Closure:
+The `array_sort` function sorts the array by the results of the given Closure:
 
     $array = [
         ['name' => 'Desk'],
@@ -535,6 +577,16 @@ The `str_plural` function converts a string to its plural form. This function cu
 
     // children
 
+You may provide an integer as a second argument to the function to retrieve the singular or plural form of the string:
+
+    $plural = str_plural('child', 2);
+
+    // children
+
+    $plural = str_plural('child', 1);
+
+    // child
+
 <a name="method-str-random"></a>
 #### `str_random()` {#collection-method}
 
@@ -631,13 +683,19 @@ The `url` function generates a fully qualified URL to the given path:
 
     echo url('user/profile', [1]);
 
+If no path is provided, a `Illuminate\Routing\UrlGenerator` instance is returned:
+
+    echo url()->current();
+    echo url()->full();
+    echo url()->previous();
+
 <a name="miscellaneous"></a>
 ## Miscellaneous
 
 <a name="method-auth"></a>
 #### `auth()` {#collection-method}
 
-The `auth` function return an authenticator instance. You may use it instead of the `Auth` facade for convenience:
+The `auth` function returns an authenticator instance. You may use it instead of the `Auth` facade for convenience:
 
     $user = auth()->user();
 
@@ -648,12 +706,19 @@ The `back()` function generates a redirect response to the user's previous locat
 
     return back();
 
-<a href="method-bcrypt"></a>
+<a name="method-bcrypt"></a>
 #### `bcrypt()` {#collection-method}
 
 The `bcrypt` function hashes the given value using Bcrypt. You may use it as an alternative to the `Hash` facade:
 
     $password = bcrypt('my-secret-password');
+
+<a name="method-collect"></a>
+#### `collect()` {#collection-method}
+
+The `collect` function creates a [collection](/docs/{{version}}/collections) instance from the supplied items:
+
+    $collection = collect(['taylor', 'abigail']);
 
 <a name="method-config"></a>
 #### `config()` {#collection-method}
@@ -688,6 +753,13 @@ The `csrf_token` function retrieves the value of the current CSRF token:
 The `dd` function dumps the given variable and ends execution of the script:
 
     dd($value);
+
+<a name="method-dispatch"></a>
+#### `dispatch()` {#collection-method}
+
+The `dispatch` function pushes a new job onto the Laravel [job queue](/docs/{{version}}/queues):
+
+    dispatch(new App\Jobs\SendEmails);
 
 <a name="method-env"></a>
 #### `env()` {#collection-method}
@@ -729,10 +801,12 @@ The `old` function [retrieves](/docs/{{version}}/requests#retrieving-input) an o
 
     $value = old('value');
 
+    $value = old('value', 'default');
+
 <a name="method-redirect"></a>
 #### `redirect()` {#collection-method}
 
-The `redirect` function return an instance of the redirector to do [redirects](/docs/{{version}}/responses#redirects):
+The `redirect` function returns an instance of the redirector to do [redirects](/docs/{{version}}/responses#redirects):
 
     return redirect('/home');
 
@@ -754,6 +828,23 @@ The `response` function creates a [response](/docs/{{version}}/responses) instan
 
     return response()->json(['foo' => 'bar'], 200, $headers);
 
+<a name="method-session"></a>
+#### `session()` {#collection-method}
+
+The `session` function may be used to get / set a session value:
+
+    $value = session('key');
+
+You may set values by passing an array of key / value pairs to the function:
+
+    session(['chairs' => 7, 'instruments' => 3]);
+
+The session store will be returned if no value is passed to the function:
+
+    $value = session()->get('key');
+
+    session()->put('key', $value);
+
 <a name="method-value"></a>
 #### `value()` {#collection-method}
 
@@ -771,6 +862,6 @@ The `view` function retrieves a [view](/docs/{{version}}/views) instance:
 <a name="method-with"></a>
 #### `with()` {#collection-method}
 
-The `with` function return the value it is given. This function is primarily useful for method chaining where it would otherwise be impossible:
+The `with` function returns the value it is given. This function is primarily useful for method chaining where it would otherwise be impossible:
 
     $value = with(new Foo)->work();
