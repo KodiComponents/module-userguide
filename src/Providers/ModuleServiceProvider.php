@@ -2,24 +2,16 @@
 
 namespace KodiCMS\Userguide\Providers;
 
-use Event;
-use KodiCMS\Userguide\Navigation\Page;
 use KodiCMS\Support\ServiceProvider;
 
 class ModuleServiceProvider extends ServiceProvider
 {
-    public function boot()
-    {
-        \Event::listen('config.loaded', function () {
-            $this->registerNavigation();
-        }, 999);
-    }
 
     public function register()
     {
     }
 
-    private function registerNavigation()
+    public function contextBackend()
     {
         $navigation = \Navigation::addPage([
             'id' => 'documentation',
